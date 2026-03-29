@@ -7,6 +7,14 @@
 - Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
 
+    For the UML design, it would focus on four main classes. 
+    This would include Owner, which would have the per owner's name and time available, and is the provider for the scheduler.
+    The second class in Pet would include the name, breed, species, and the list of care tasks.
+    The Task class be an activity, which can be the task name, time taken, and priority.
+    Scheduler would the fourth and final class, in taking a owner's time and pet's tasks to then be sorted by priority and alloted time scheduled, in effort to return the plan for the owner to follow.
+
+    
+
 **b. Design changes**
 
 - Did your design change during implementation?
