@@ -1,26 +1,33 @@
-# PawPal+ (Module 2 Project)
+# PawPal+
 
-You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
+A Streamlit app that helps pet owners build a smart daily care schedule — automatically sorted, conflict-checked, and recurring.
 
-## Scenario
+---
 
-A busy pet owner needs help staying consistent with pet care. They want an assistant that can:
+## Features
 
-- Track pet care tasks (walks, feeding, meds, enrichment, grooming, etc.)
-- Consider constraints (time available, priority, owner preferences)
-- Produce a daily plan and explain why it chose that plan
+**Chronological sorting**
+Tasks with a scheduled time are automatically sorted earliest-to-latest using `sort_by_time()`. Tasks without a time slot are pushed to the end so they never break the sort order.
 
-Your job is to design the system first (UML), then implement the logic in Python, then connect it to the Streamlit UI.
+**Priority-aware scheduling**
+`generate_plan()` sorts pending tasks by time first, then by priority (high → low) as a tiebreaker, and greedily fits as many as possible within the owner's available time budget.
 
-## What you will build
+**Daily and weekly recurrence**
+Mark a task complete through the app and `mark_task_complete()` automatically queues the next occurrence — one day later for daily tasks, seven days later for weekly — using `timedelta`. No manual re-adding required.
 
-Your final app should:
+**Conflict detection and warnings**
+After generating a schedule, `detect_conflicts()` checks every pair of timed tasks for overlapping time windows. The UI surfaces each conflict as a named warning (e.g. "Walk at 08:00 for 30 min overlaps Meds at 08:15") and tells you exactly how to fix it.
 
-- Let a user enter basic owner + pet info
-- Let a user add/edit tasks (duration + priority at minimum)
-- Generate a daily schedule/plan based on constraints and priorities
-- Display the plan clearly (and ideally explain the reasoning)
-- Include tests for the most important scheduling behaviors
+**Cross-pet conflict detection**
+`detect_cross_pet_conflicts()` checks tasks across multiple pets' plans so an owner juggling two pets doesn't accidentally double-book themselves.
+
+**Pending / completed filtering**
+`get_pending_tasks()` and `get_completed_tasks()` on `Pet` keep the UI clean — only unfinished tasks show in the active list, and completed ones move to a separate table.
+
+**Reset for the next day**
+Completed recurring tasks can be reset in one click so they reappear in tomorrow's plan without losing their recurrence settings.
+
+---
 
 ## Getting started
 
@@ -32,23 +39,15 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-## Smarter Scheduling
+### Run the app
 
-For module 2 the scheduler got a few upgrades to make it actually useful.
-
-Tasks can now have a scheduled time in HH:MM format, and `sort_by_time()` will put them in order for you. It uses a lambda as the key so tasks without a time just get pushed to the end instead of breaking anything.
-
-Filtering was also added. You can call `get_pending_tasks()` or `get_completed_tasks()` on any pet to get just what you need, and `filter_by_pet()` on the scheduler if you want to pull tasks for a specific pet out of a bigger list.
-
-Recurring tasks were the big one. Tasks can be set to daily or weekly, and when you mark one complete through `mark_task_complete()` it automatically queues up the next one with the right due date using timedelta. So you don't have to re-add feeding or walks every day yourself.
-
-Conflict detection was also added in. The scheduler checks for overlapping time windows and prints a warning instead of just silently letting two things be scheduled at the same time. It works for a single pet's plan and across multiple pets too.
+```bash
+streamlit run app.py
+```
 
 ---
 
 ## Testing PawPal+
-
-To run the full test suite:
 
 ```bash
 python -m pytest tests/test_pawpal.py -v
@@ -69,16 +68,31 @@ The core scheduling logic - sorting, recurrence, and conflict detection is all c
 
 ---
 
-### Suggested workflow
+## 📸 Demo
 
-1. Read the scenario carefully and identify requirements and edge cases.
-2. Draft a UML diagram (classes, attributes, methods, relationships).
-3. Convert UML into Python class stubs (no logic yet).
-4. Implement scheduling logic in small increments.
-5. Add tests to verify key behaviors.
-6. Connect your logic to the Streamlit UI in `app.py`.
-7. Refine UML so it matches what you actually built.
+<a href="/course_images/ai110/pet_screenshot.png" target="_blank"><img src='/course_images/ai110/pet_screenshot.png' title='PawPal App' width='' alt='PawPal App' class='center-block' /></a>
 
 
+---
 
+## Project structure
 
+```
+pawpal_system.py   — core logic: Owner, Pet, Task, Scheduler classes
+app.py             — Streamlit UI
+tests/
+  test_pawpal.py   — 18 pytest tests
+reflection.md      — design decisions and trade-offs
+```
+
+---
+
+## Smarter Scheduling (Module 2 notes)
+
+Tasks can now have a scheduled time in HH:MM format, and `sort_by_time()` will put them in order for you. It uses a lambda as the sort key so tasks without a time just get pushed to the end instead of breaking anything.
+
+Filtering was also added. You can call `get_pending_tasks()` or `get_completed_tasks()` on any pet to get just what you need, and `filter_by_pet()` on the scheduler if you want to pull tasks for a specific pet out of a bigger list.
+
+Recurring tasks were the big one. Tasks can be set to daily or weekly, and when you mark one complete through `mark_task_complete()` it automatically queues up the next one with the right due date using timedelta. So you don't have to re-add feeding or walks every day yourself.
+
+Conflict detection was also added in. The scheduler checks for overlapping time windows and prints a warning instead of just silently letting two things be scheduled at the same time. It works for a single pet's plan and across multiple pets too.

@@ -72,37 +72,41 @@ if st.button("Add task"):
 
 # --- Task list with pending/completed split and mark-complete buttons ---
 if st.session_state.pet and st.session_state.pet.get_tasks():
-    pending = st.session_state.pet.get_pending_tasks()
+    _sched = Scheduler()
+    pending = _sched.sort_by_time(st.session_state.pet.get_pending_tasks())
     completed = st.session_state.pet.get_completed_tasks()
 
     if pending:
-        st.write("**Pending tasks:**")
-        for i, task in enumerate(st.session_state.pet.get_tasks()):
-            if task.completed:
-                continue
-            cols = st.columns([3, 1, 1, 1, 1])
-            cols[0].write(task.task_name)
-            cols[1].write(f"{task.duration} min")
-            cols[2].write(task.priority)
-            cols[3].write(task.scheduled_time or "—")
-            cols[4].write(task.recurrence or "—")
-            if st.button("Done", key=f"done_{i}"):
-                task.mark_complete()
+        st.write("**Pending tasks** (sorted by scheduled time):")
+        st.table([
+            {
+                "Task": t.task_name,
+                "Time": t.scheduled_time or "—",
+                "Duration": f"{t.duration} min",
+                "Priority": t.priority,
+                "Repeats": t.recurrence or "—",
+            }
+            for t in pending
+        ])
+        st.write("Mark a task complete:")
+        for i, task in enumerate(pending):
+            label = f"{task.task_name}" + (f" ({task.scheduled_time})" if task.scheduled_time else "")
+            if st.button(f"Done — {label}", key=f"done_{i}"):
+                _sched.mark_task_complete(st.session_state.pet, task)
                 st.rerun()
 
     if completed:
         st.write("**Completed tasks:**")
         st.table([
-            {"Task": t.task_name, "Duration": t.duration, "Priority": t.priority,
-             "Time": t.scheduled_time or "—", "Recurrence": t.recurrence or "—"}
+            {"Task": t.task_name, "Duration": f"{t.duration} min", "Priority": t.priority,
+             "Time": t.scheduled_time or "—", "Repeats": t.recurrence or "—"}
             for t in completed
         ])
 
     # Recurring reset button
     if completed and any(t.recurrence for t in completed):
         if st.button("Reset recurring tasks (next day)"):
-            scheduler = Scheduler()
-            scheduler.reset_recurring_tasks(st.session_state.pet)
+            _sched.reset_recurring_tasks(st.session_state.pet)
             st.success("Recurring tasks reset for the next day.")
             st.rerun()
 else:
@@ -124,19 +128,29 @@ if st.button("Generate schedule"):
         if not plan:
             st.error("No tasks fit within the available time.")
         else:
-            st.success(f"Today's plan for {st.session_state.pet.name}:")
-            for task in plan:
-                time_str = f" at {task.scheduled_time}" if task.scheduled_time else ""
-                recur_str = f" [{task.recurrence}]" if task.recurrence else ""
-                st.markdown(f"- **{task.task_name}**{time_str} — {task.duration} min ({task.priority} priority){recur_str}")
+            st.success(f"Today's plan for {st.session_state.pet.name} ({sum(t.duration for t in plan)} / {st.session_state.owner.get_available_time()} min used):")
+            st.table([
+                {
+                    "Task": t.task_name,
+                    "Time": t.scheduled_time or "—",
+                    "Duration": f"{t.duration} min",
+                    "Priority": t.priority,
+                    "Repeats": t.recurrence or "—",
+                }
+                for t in plan
+            ])
 
-            # Conflict detection
-            conflicts = scheduler.detect_conflicts(plan)
-            if conflicts:
-                st.warning("Scheduling conflicts detected:")
-                for a, b in conflicts:
-                    st.write(f"- **{a.task_name}** ({a.scheduled_time}, {a.duration} min) overlaps with **{b.task_name}** ({b.scheduled_time}, {b.duration} min)")
+            # Conflict detection — use conflict_warnings() for consistent formatting
+            warnings = scheduler.conflict_warnings(plan, pet_name=st.session_state.pet.name)
+            if warnings:
+                st.error("⚠️ Scheduling conflicts detected — two tasks overlap. Adjust their times or durations before starting.")
+                for w in warnings:
+                    # Parse the two task names out and show a clear fix suggestion
+                    st.warning(w)
+                st.caption("Tip: open the task above and shift its start time forward to clear the overlap.")
+            else:
+                st.success("No conflicts — all tasks have clear, non-overlapping time windows.")
 
             skipped = [t for t in st.session_state.pet.get_pending_tasks() if t not in plan]
             if skipped:
-                st.caption("Skipped (didn't fit in time): " + ", ".join(t.task_name for t in skipped))
+                st.info("Not enough time for: " + ", ".join(f"**{t.task_name}**" for t in skipped) + ". Free up time or increase your availability.")
