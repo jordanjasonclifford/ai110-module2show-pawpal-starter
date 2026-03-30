@@ -56,10 +56,17 @@ For a pet care app where the task list is small and the owner mostly just wants 
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
 - What kinds of prompts or questions were most helpful?
 
+AI was used through every stage with some slight variation. Most of the brainstorming was done by me, with some AI use to help sharpen any issues. 
+With the implementation, it helped me fill in logic as there's a lot of moving parts through it.
+Most helpful prompts were specific like "how should conflict warnings be presented to a pet owner in app.py?"
+Using specifics instead of like "add a conflict detection" made the suggestions more relevant to the AI
+
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
+
+One of the tests AI generated was for reset_recurring_tasks(), but it was giving a false positive so I cut it. I went back and used more specific prompts to figure out what was wrong with it, and that back and forth helped me rewrite it in a way that actually tested what the method was supposed to do.
 
 ---
 
@@ -70,11 +77,21 @@ For a pet care app where the task list is small and the owner mostly just wants 
 - What behaviors did you test?
 - Why were these tests important?
 
+The four main areas were tested with sorting, recurrence, conflict edetection, and edge cases. 
+Sorting was with 'sort by time' always put the timed tasks first and didn't crash on an empty list.
+For recurrence, daily tasks had to have a next-day copy and weekly tasks land throughout each week, with one-off tasks not spawning anything
+Conflict detection had to catch overlaps and stay quiet with back-to-back tasks.
+Edge cases cover pets without taks, and plan where everythings done with the owner not having availble time.
+
+All behaviors were important as the app depends on it. Sorting makes the schedule, recurrence helps out in terms of not reinputting schedules, conflict detection warns the user if any overlaps, and edge cases in place for no errors shown to user.
+
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
 - What edge cases would you test next if you had more time?
 
+The core logic made me confident, with all tests passing and covering anything I could think of. 
+The UI layer isn't tested as compared to main, so with more time I would test invalid time formats, two pets with same name, and check the reset button.
 ---
 
 ## 5. Reflection
@@ -83,10 +100,17 @@ For a pet care app where the task list is small and the owner mostly just wants 
 
 - What part of this project are you most satisfied with?
 
+I love the logic of how the schedule prioritizes different tasks, this feature would be a great idea to add within say a 'to-do' app personal project to follow
+
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
 
+Session states could be reset with refereshes, with some sort of logging system of a 'database' would be best. This could even be done in a txt file due to the low stakes nature of the project but of course would be needed to be scaled up if expanded upon greatly.
+
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+
+AI is great when you have the understanding of what you're building at a given time. 
+Knowing what prompts to make at a given time and being very specific can net you better results. A vague prompt will NOT get you far when using AI as a companion.
