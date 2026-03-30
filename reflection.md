@@ -13,12 +13,16 @@
     The Task class be an activity, which can be the task name, time taken, and priority.
     Scheduler would the fourth and final class, in taking a owner's time and pet's tasks to then be sorted by priority and alloted time scheduled, in effort to return the plan for the owner to follow.
 
-    
+
 
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
+
+Nothing major was changed during implementation, just from the translation of the .js to the .py file; there was no reference to an owner actually owning a pet.
+This was a silly mistake from the generation, and was fixed as the whole point of the system was for owners caring for their pets.
+
 
 ---
 
