@@ -46,6 +46,29 @@ Conflict detection was also added in. The scheduler checks for overlapping time 
 
 ---
 
+## Testing PawPal+
+
+To run the full test suite:
+
+```bash
+python -m pytest tests/test_pawpal.py -v
+```
+
+I wrote 18 tests across four areas:
+
+- **Sorting correctness** — verifies that `sort_by_time()` returns tasks in chronological order, pushes untimed tasks to the end, and handles empty lists without crashing.
+- **Recurrence logic** — confirms that marking a daily task complete automatically creates a new task due the next day, weekly tasks land seven days out, and one-off tasks don't spawn duplicates.
+- **Conflict detection** — checks that overlapping time windows get flagged, back-to-back tasks (no actual overlap) stay clean, and the warning strings include the pet name.
+- **Edge cases** — covers a pet with no tasks, a plan where everything is already completed, and an owner with zero available time.
+
+All 18 tests pass.
+
+**Confidence Level: ★★★★☆**
+
+The core scheduling logic — sorting, recurrence, and conflict detection — is solid and well-covered. I'd bump it to five stars once the Streamlit UI layer and any user-input validation gets test coverage too.
+
+---
+
 ### Suggested workflow
 
 1. Read the scenario carefully and identify requirements and edge cases.
