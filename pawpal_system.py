@@ -2,11 +2,13 @@ from dataclasses import dataclass, field
 from typing import List
 
 
+PRIORITY_ORDER = {"low": 1, "medium": 2, "high": 3}
+
 @dataclass
 class Task:
     task_name: str
     duration: int       # in minutes
-    priority: int       # higher = more important
+    priority: str       # "low", "medium", or "high"
     completed: bool = False
 
     def get_details(self) -> str:
@@ -57,7 +59,7 @@ class Scheduler:
 
     def _sort_by_priority(self, tasks: List[Task]) -> List[Task]:
         """Return tasks sorted from highest to lowest priority."""
-        return sorted(tasks, key=lambda t: t.priority, reverse=True)
+        return sorted(tasks, key=lambda t: PRIORITY_ORDER.get(t.priority, 0), reverse=True)
 
     def _fit_within_time(self, tasks: List[Task], time_available: int) -> List[Task]:
         """Greedily add tasks until the time budget is exhausted; skip tasks that don't fit."""
