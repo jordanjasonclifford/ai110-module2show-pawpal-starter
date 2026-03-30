@@ -33,10 +33,19 @@ This was a silly mistake from the generation, and was fixed as the whole point o
 - What constraints does your scheduler consider (for example: time, priority, preferences)?
 - How did you decide which constraints mattered most?
 
+The scheduler mainly considers two things: the owner's available time for the day, and the priority of each task. 
+It also takes into account whether a task has already been completed, so it won't re-schedule something that's done. 
+I decided time and priority mattered most because those are the two things that actually limit what gets done in a day, you'd have a full list of tasks, but if you only have 30 minutes and a high-priority feeding to get to, that shapes everything else.
+
 **b. Tradeoffs**
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
+
+The biggest tradeoff is that the scheduler uses a greedy approach, adding tasks til time runs out. 
+That means it could technically skip two short tasks that would have both fit, just because a longer high-priority task came first and used up most of the budget. 
+A smarter algorithm could find the optimal combination, but that gets complicated fast. 
+For a pet care app where the task list is small and the owner mostly just wants the important stuff handled first, greedy is good enough and a lot easier to follow.
 
 ---
 
